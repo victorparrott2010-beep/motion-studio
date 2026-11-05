@@ -1,0 +1,43 @@
+/* Brand tokens — edit these and every video picks them up. */
+
+/* Fonts: bundled locally in /fonts so renders work offline (SIL Open Font License). */
+@font-face { font-family: "Instrument Serif"; src: url("fonts/InstrumentSerif-Regular.ttf") format("truetype");
+             font-weight: 400; font-style: normal; }
+@font-face { font-family: "Instrument Serif"; src: url("fonts/InstrumentSerif-Italic.ttf") format("truetype");
+             font-weight: 400; font-style: italic; }
+@font-face { font-family: "Inter Tight"; src: url("fonts/InterTight[wght].ttf") format("truetype");
+             font-weight: 100 900; font-style: normal; }
+@font-face { font-family: "Inter Tight"; src: url("fonts/InterTight-Italic[wght].ttf") format("truetype");
+             font-weight: 100 900; font-style: italic; }
+
+:root {
+  /* ---- Palette: your four brand colors ---- */
+  --burgundy:    #5E1A28;
+  --gold:        #E2B34A;
+  --camel:       #C19A6B;
+  --light-camel: #E6D2B0;
+
+  /* ---- Roles: which color does which job. Videos use these. ---- */
+  --bg:        var(--burgundy);     /* background (brand default) */
+  --ink:       var(--light-camel);  /* main text: 7.7:1 on burgundy */
+  --accent:    var(--gold);         /* numbers, bars, highlights, buttons: 5.8:1 on burgundy */
+  --muted:     var(--camel);        /* secondary text, outlines: 4.9:1 on burgundy */
+  --on-accent: var(--burgundy);     /* text on gold fills (e.g. buttons): 5.8:1 */
+
+  /* Fonts */
+  --font-display: "Instrument Serif", Georgia, serif;   /* headlines */
+  --font-body:    "Inter Tight", "Inter", system-ui, sans-serif;
+}
+
+/* Base frame setup shared by all videos */
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body {
+  width: 100%; height: 100%;
+  overflow: hidden;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--font-body);
+  -webkit-font-smoothing: antialiased;
+}
+/* Safety net: no CSS motion may sneak in. Everything moves via render(t). */
+*, *::before, *::after { animation: none !important; transition: none !important; }

@@ -1,0 +1,128 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<link rel="stylesheet" href="../brand.css">
+<script src="../lib/motion.js"></script>
+<style>
+  #stage { position: relative; width: 1920px; height: 1080px; padding: 96px 140px; }
+
+  #head { display: flex; align-items: baseline; justify-content: space-between;
+          border-bottom: 2px solid var(--ink); padding-bottom: 22px; }
+  #head h1 { font-family: var(--font-display); font-weight: 400; font-size: 84px; line-height: 1; }
+  #head h1 em { font-style: italic; }
+  #head .tag { font-size: 22px; font-weight: 600; letter-spacing: 0.22em; text-transform: uppercase; }
+  #rule { position: absolute; left: 140px; top: 203px; height: 2px; background: var(--bg); } /* wipes to reveal border */
+
+  #swatches { display: grid; grid-template-columns: repeat(4, 1fr); gap: 48px; margin-top: 64px; }
+  .sw { will-change: transform, opacity; }
+  .chip { height: 280px; border-radius: 22px; border: 2px solid var(--ink); position: relative; overflow: hidden; }
+  .chip .aa { position: absolute; left: 26px; bottom: 14px; font-family: var(--font-display);
+              font-size: 96px; line-height: 1; color: var(--ink); }
+  .meta { display: flex; justify-content: space-between; align-items: baseline; margin-top: 20px; }
+  .meta .name { font-size: 32px; font-weight: 600; letter-spacing: -0.01em; }
+  .meta .hex  { font-size: 24px; font-weight: 500; font-variant-numeric: tabular-nums; letter-spacing: 0.04em; }
+  .role { font-size: 20px; font-weight: 500; letter-spacing: 0.16em; text-transform: uppercase; margin-top: 6px; color: var(--muted); }
+
+  #type { display: grid; grid-template-columns: 1.15fr 1fr; gap: 48px; margin-top: 56px; }
+  .spec { border: 2px solid var(--muted); border-radius: 22px; padding: 30px 36px; height: 250px; position: relative; overflow: hidden; }
+  .spec .label { font-size: 20px; font-weight: 600; letter-spacing: 0.18em; text-transform: uppercase; color: var(--accent); }
+  .serif .sample { font-family: var(--font-display); font-size: 112px; line-height: 1.05; margin-top: 14px; letter-spacing: -0.01em; }
+  .serif .sample em { font-style: italic; }
+  .sans .sample { font-family: var(--font-body); margin-top: 18px; }
+  .sans .row { font-size: 44px; line-height: 1.25; letter-spacing: -0.01em; }
+</style>
+</head>
+<body>
+<div id="stage">
+  <div id="head">
+    <h1>Brand <em>check</em></h1>
+    <div class="tag">Colors &amp; Type</div>
+  </div>
+  <div id="rule"></div>
+
+  <div id="swatches"></div>
+
+  <div id="type">
+    <div class="spec serif">
+      <div class="label">Headline · Instrument Serif</div>
+      <div class="sample">Aa Bb <em>Crafted</em></div>
+    </div>
+    <div class="spec sans">
+      <div class="label">Body · Inter Tight</div>
+      <div class="sample">
+        <div class="row" style="font-weight:400">Regular — clear and steady.</div>
+        <div class="row" style="font-weight:600">SemiBold — for emphasis.</div>
+        <div class="row" style="font-weight:800">ExtraBold 0123456789</div>
+      </div>
+    </div>
+  </div>
+</div>
+<script>
+  window.DURATION = 5;
+  window.SIZE = [1920, 1080];
+  const { tween, ease, progress } = M;
+
+  // Swatches read their hex straight from brand.css, so this video always matches the brand file.
+  const css = getComputedStyle(document.documentElement);
+  const colors = [
+    { token: '--burgundy',    name: 'Burgundy',    role: 'Background', text: '--light-camel' },
+    { token: '--gold',        name: 'Gold',        role: 'Accent',     text: '--burgundy' },
+    { token: '--light-camel', name: 'Light Camel', role: 'Text',       text: '--burgundy' },
+    { token: '--camel',       name: 'Camel',       role: 'Muted',      text: '--burgundy' },
+  ];
+  const wrap = document.getElementById('swatches');
+  colors.forEach(c => {
+    const hex = css.getPropertyValue(c.token).trim().toUpperCase();
+    const el = document.createElement('div');
+    el.className = 'sw';
+    el.innerHTML = `
+      <div class="chip" style="background:var(${c.token})"><div class="aa" style="color:var(${c.text})">Aa</div></div>
+      <div class="meta"><span class="name">${c.name}</span><span class="hex">${hex}</span></div>
+      <div class="role">${c.role}</div>`;
+    wrap.appendChild(el);
+  });
+
+  const $ = s => document.querySelector(s);
+  const head = $('#head h1'), tag = $('#head .tag'), rule = $('#rule');
+  const sws = [...document.querySelectorAll('.sw')];
+  const specs = [...document.querySelectorAll('.spec')];
+  const sansRows = [...document.querySelectorAll('.sans .row')];
+
+  window.render = (t) => {
+    // Title
+    head.style.opacity = tween(t, 0.0, 0.5, 0, 1, ease.linear);
+    head.style.transform = `translateY(${tween(t, 0.0, 0.7, 30, 0, ease.outCubic)}px)`;
+    tag.style.opacity = tween(t, 0.25, 0.75, 0, 1, ease.linear);
+    // Underline draws left→right: a bg-colored cover shrinks off to the right
+    const p = ease.inOutCubic(progress(t, 0.1, 0.9));
+    rule.style.left = (140 + 1640 * p) + 'px';
+    rule.style.width = (1640 * (1 - p)) + 'px';
+
+    // Swatches pop up one by one
+    sws.forEach((el, i) => {
+      const s = 0.45 + i * 0.18;
+      el.style.opacity = tween(t, s, s + 0.35, 0, 1, ease.linear);
+      el.style.transform = `translateY(${tween(t, s, s + 0.7, 60, 0, ease.outBack)}px)`;
+    });
+
+    // Type specimens slide in
+    specs.forEach((el, i) => {
+      const s = 1.55 + i * 0.2;
+      el.style.opacity = tween(t, s, s + 0.4, 0, 1, ease.linear);
+      el.style.transform = `translateY(${tween(t, s, s + 0.7, 50, 0, ease.outCubic)}px)`;
+    });
+    sansRows.forEach((el, i) => {
+      const s = 2.0 + i * 0.15;
+      el.style.opacity = tween(t, s, s + 0.35, 0, 1, ease.linear);
+      el.style.transform = `translateX(${tween(t, s, s + 0.5, 24, 0, ease.outCubic)}px)`;
+    });
+
+    // Gentle fade at the very end
+    $('#stage').style.opacity = tween(t, 4.7, 5.0, 1, 0, ease.inCubic);
+  };
+
+  window.render(0);
+</script>
+</body>
+</html>

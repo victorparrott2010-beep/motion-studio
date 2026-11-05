@@ -1,0 +1,66 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<link rel="stylesheet" href="../brand.css">
+<script src="../lib/motion.js"></script>
+<style>
+  #stage { position: relative; width: 100%; height: 100%; display: grid; place-items: center; overflow: hidden; }
+  #glow  { position: absolute; width: 1100px; height: 1100px; border-radius: 50%;
+           background: radial-gradient(circle, color-mix(in srgb, var(--accent) 35%, transparent), transparent 60%); }
+  #title { font-family: var(--font-display); font-weight: 800; font-size: 120px; letter-spacing: -0.03em;
+           display: flex; gap: 0.28em; }
+  .word  { display: inline-block; }
+  .word.hl { color: var(--accent); }
+  #bar   { position: absolute; left: 50%; top: calc(50% + 100px); height: 10px; border-radius: 5px;
+           background: linear-gradient(90deg, var(--accent), var(--muted)); transform: translateX(-50%); }
+  #sub   { position: absolute; top: calc(50% + 140px); font-size: 34px; color: var(--muted); letter-spacing: 0.2em;
+           text-transform: uppercase; }
+</style>
+</head>
+<body>
+<div id="stage">
+  <div id="glow"></div>
+  <div id="title">
+    <span class="word">Hello</span><span class="word">from</span><span class="word">my</span><span class="word hl">studio</span>
+  </div>
+  <div id="bar"></div>
+  <div id="sub">motion studio · test render</div>
+</div>
+<script>
+  window.DURATION = 3;
+  window.SIZE = [1920, 1080];
+
+  const words = [...document.querySelectorAll('.word')];
+  const glow = document.getElementById('glow');
+  const bar = document.getElementById('bar');
+  const sub = document.getElementById('sub');
+  const { tween, ease } = M;
+
+  window.render = (t) => {
+    // Words rise in one after another
+    words.forEach((w, i) => {
+      const s = 0.15 + i * 0.16;
+      const y = tween(t, s, s + 0.6, 80, 0, ease.outBack);
+      const o = tween(t, s, s + 0.4, 0, 1, ease.linear);
+      w.style.transform = `translateY(${y}px)`;
+      w.style.opacity = o;
+    });
+
+    // Underline grows, subtitle fades in
+    bar.style.width = tween(t, 0.9, 1.6, 0, 760, ease.outExpo) + 'px';
+    sub.style.opacity = tween(t, 1.3, 1.9, 0, 1);
+    sub.style.transform = `translateY(${tween(t, 1.3, 1.9, 20, 0, ease.outCubic)}px)`;
+
+    // Background glow breathes and drifts
+    const g = 0.85 + 0.15 * Math.sin(t * Math.PI * 0.8);
+    glow.style.transform = `translate(${tween(t, 0, 3, -120, 120, ease.inOutCubic)}px, 0) scale(${g})`;
+
+    // Fade everything out at the end
+    document.getElementById('stage').style.opacity = tween(t, 2.6, 3.0, 1, 0, ease.inCubic);
+  };
+
+  window.render(0); // so opening the file in a browser shows something
+</script>
+</body>
+</html>
